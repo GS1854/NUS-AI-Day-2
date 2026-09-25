@@ -15,17 +15,30 @@ h1 { font-size: clamp(38px, 7vw, 66px); line-height: .98; margin: 20px 0; }
 .login-panel small { display: block; }
 .app-shell { width: min(1040px, 100%); margin: 0 auto; padding: 56px 24px 90px; }
 .app-header { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 34px; }
+.header-actions { display: flex; align-items: center; gap: 12px; }
+.import-button { position: relative; }
+.import-button input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .app-header h1 { font-size: clamp(42px, 7vw, 72px); margin: 0; }
 .kicker { margin: 0 0 8px; color: var(--coral); font-size: 13px; font-weight: 700; }
 .composer, .todo-card { background: var(--panel); border: 1px solid var(--line); }
 .composer { display: grid; grid-template-columns: 1fr 140px 190px auto; gap: 10px; padding: 14px; margin-bottom: 44px; }
+.filter-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+.filter-bar input { flex: 1 1 240px; }
+.filter-bar select { flex: 0 1 160px; }
+.check-label { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; }
+.tag-create { display: flex; gap: 4px; }
+.tag-create input { width: 110px; padding: 8px; }
+.tag-list { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 7px; }
+.tag-badge { padding: 3px 7px; color: white; font-size: 11px; border-radius: 999px; }
+.tag-list select { padding: 4px 6px; font-size: 11px; }
 input, select { min-width: 0; border: 1px solid var(--line); background: transparent; color: var(--ink); padding: 12px; }
 .todo-section { margin: 28px 0; }
 .section-heading { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 2px solid var(--ink); }
 .section-heading h2 { margin: 0 0 10px; font-size: 27px; }
 .count { color: var(--muted); font-size: 13px; }
 .todo-list { display: grid; gap: 10px; margin-top: 12px; }
-.todo-card { display: flex; align-items: center; gap: 14px; padding: 16px; }
+.todo-card { padding: 16px; }
+.todo-row { display: flex; align-items: center; gap: 14px; }
 .todo-card.done .todo-title { text-decoration: line-through; color: var(--muted); }
 .todo-copy { flex: 1; min-width: 0; }
 .todo-title { display: block; font-weight: 700; overflow-wrap: anywhere; }
@@ -33,10 +46,31 @@ input, select { min-width: 0; border: 1px solid var(--line); background: transpa
 .todo-actions { display: flex; gap: 8px; }
 .text-button { border: 0; background: transparent; color: var(--sage); padding: 6px; }
 .delete-button { color: var(--coral); }
+.subtask-panel { margin: 14px 0 0 30px; border-top: 1px solid var(--line); padding-top: 10px; }
+.subtask-toggle { border: 0; background: transparent; color: var(--sage); padding: 4px 0; font-size: 13px; font-weight: 700; }
+.subtask-progress { color: var(--muted); font-weight: 400; margin-left: 6px; }
+.subtask-content { padding-top: 10px; }
+.progress-summary { display: grid; gap: 6px; color: var(--muted); font-size: 12px; }
+.progress-track { height: 6px; background: var(--line); overflow: hidden; }
+.progress-track span { display: block; height: 100%; background: var(--sage); transition: width .2s ease; }
+.subtask-list { display: grid; gap: 4px; margin: 10px 0; }
+.subtask-row { display: flex; align-items: center; gap: 8px; min-height: 32px; }
+.subtask-title { flex: 1; overflow-wrap: anywhere; font-size: 14px; }
+.subtask-title.completed { color: var(--muted); text-decoration: line-through; }
+.subtask-form { display: flex; gap: 8px; }
+.subtask-form input { flex: 1; padding: 8px 10px; }
+.subtask-form .text-button { padding: 8px 4px; }
+.subtask-status, .subtask-error { color: var(--muted); font-size: 13px; }
+.subtask-error { color: var(--coral); }
 .error { color: var(--coral); margin: -26px 0 20px; }
 .empty { color: var(--muted); padding: 18px 0; }
+.calendar-toolbar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--ink); margin-bottom: 14px; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.calendar-day { min-height: 120px; padding: 10px; background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
+.holiday { color: var(--coral); font-size: 11px; }
+.calendar-todo { color: var(--sage); font-size: 12px; overflow-wrap: anywhere; }
 .modal-backdrop { position: fixed; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(31, 41, 51, .38); }
 .edit-modal { display: grid; gap: 12px; width: min(480px, 100%); padding: 24px; background: var(--panel); border: 1px solid var(--line); box-shadow: 10px 10px 0 rgba(31, 41, 51, .18); }
 .edit-modal h2 { margin: 0 0 6px; font-size: 30px; }
 .modal-actions { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 8px; }
-@media (max-width: 720px) { .composer { grid-template-columns: 1fr 1fr; } .composer input:first-child { grid-column: 1 / -1; } .app-header { display: block; } .todo-card { align-items: flex-start; } .todo-actions { flex-direction: column; } }
+@media (max-width: 720px) { .composer { grid-template-columns: 1fr 1fr; } .composer input:first-child { grid-column: 1 / -1; } .app-header { display: block; } .todo-row { align-items: flex-start; } .todo-actions { flex-direction: column; } .subtask-panel { margin-left: 30px; } .filter-bar select { flex: 1 1 140px; } }

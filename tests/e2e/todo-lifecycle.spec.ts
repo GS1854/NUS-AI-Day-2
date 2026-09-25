@@ -41,6 +41,22 @@ test.describe('todo lifecycle', () => {
 
     const editedCard = todoCard(page, `${title} edited`);
     await expect(editedCard).toBeVisible();
+    await editedCard.getByRole('button', { name: /Show subtasks/ }).click();
+    const subtaskTitle = `${title} subtask`;
+    await editedCard.getByRole('textbox', { name: `Add subtask to ${title} edited` }).fill(subtaskTitle);
+    const subtaskCreateResponse = page.waitForResponse((response) => response.url().includes('/subtasks') && response.request().method() === 'POST');
+    await editedCard.getByRole('button', { name: 'Add' }).click();
+    expect((await subtaskCreateResponse).status()).toBe(201);
+    await expect(editedCard).toContainText('0 of 1 complete');
+    const subtask = editedCard.getByRole('checkbox', { name: `Complete subtask ${subtaskTitle}` });
+    const subtaskUpdateResponse = page.waitForResponse((response) => response.url().includes('/api/subtasks/') && response.request().method() === 'PUT');
+    await subtask.check();
+    expect((await subtaskUpdateResponse).status()).toBe(200);
+    await expect(editedCard).toContainText('1 of 1 complete');
+    const subtaskDeleteResponse = page.waitForResponse((response) => response.url().includes('/api/subtasks/') && response.request().method() === 'DELETE');
+    await editedCard.getByRole('button', { name: `Delete subtask ${subtaskTitle}` }).click();
+    expect((await subtaskDeleteResponse).status()).toBe(200);
+    await expect(editedCard).toContainText('0 of 0 complete');
     const completeResponse = page.waitForResponse((response) => response.url().includes('/api/todos/') && response.request().method() === 'PUT');
     await editedCard.getByRole('checkbox').check();
     expect((await completeResponse).status()).toBe(200);
