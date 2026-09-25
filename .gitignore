@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+node_modules/
+.next/
+out/
+todos.db
+*.db-shm
+*.db-wal
+coverage/
+playwright-report/
+test-results/
+tsconfig.tsbuildinfo
