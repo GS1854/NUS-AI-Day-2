@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { Todo } from '@/lib/db';
 import { formatSingaporeDate } from '@/lib/timezone';
 import { sectionTodos } from '@/lib/todoSort';
@@ -9,6 +10,7 @@ type Draft = { title: string; priority: Todo['priority']; due_date: string };
 const emptyDraft: Draft = { title: '', priority: 'medium', due_date: '' };
 
 export default function HomePage() {
+  const router = useRouter();
   const [todos, setTodos] = useState<Todo[]>([]);
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [editing, setEditing] = useState<Todo | null>(null);
@@ -18,10 +20,16 @@ export default function HomePage() {
 
   useEffect(() => {
     fetch('/api/todos').then(async (response) => {
+      if (response.status === 401) {
+        router.push('/login');
+        return null;
+      }
       if (!response.ok) throw new Error('Could not load your todos');
       return response.json() as Promise<Todo[]>;
-    }).then(setTodos).catch((reason: Error) => setError(reason.message)).finally(() => setLoading(false));
-  }, []);
+    }).then((loadedTodos) => {
+      if (loadedTodos) setTodos(loadedTodos);
+    }).catch((reason: Error) => setError(reason.message)).finally(() => setLoading(false));
+  }, [router]);
 
   async function addTodo(event: FormEvent) {
     event.preventDefault();
@@ -33,6 +41,10 @@ export default function HomePage() {
     setDraft(emptyDraft);
     try {
       const response = await fetch('/api/todos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, priority: draft.priority, due_date: draft.due_date || null }) });
+      if (response.status === 401) {
+        router.push('/login');
+        throw new Error('Your session has expired');
+      }
       if (!response.ok) throw new Error((await response.json()).error ?? 'Could not add task');
       const created = await response.json() as Todo;
       setTodos((current) => current.map((todo) => todo.id === optimistic.id ? created : todo));
@@ -47,6 +59,10 @@ export default function HomePage() {
     setTodos((current) => current.map((todo) => todo.id === id ? { ...todo, ...changes } : todo));
     try {
       const response = await fetch(`/api/todos/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(changes) });
+      if (response.status === 401) {
+        router.push('/login');
+        throw new Error('Your session has expired');
+      }
       if (!response.ok) throw new Error((await response.json()).error ?? 'Could not update task');
       const updated = await response.json() as Todo;
       setTodos((current) => current.map((todo) => todo.id === id ? updated : todo));
@@ -61,6 +77,10 @@ export default function HomePage() {
     setTodos((current) => current.filter((todo) => todo.id !== id));
     try {
       const response = await fetch(`/api/todos/${id}`, { method: 'DELETE' });
+      if (response.status === 401) {
+        router.push('/login');
+        throw new Error('Your session has expired');
+      }
       if (!response.ok) throw new Error('Could not delete task');
     } catch (reason) {
       setTodos(previous);
