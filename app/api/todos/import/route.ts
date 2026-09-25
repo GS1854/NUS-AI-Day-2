@@ -16,7 +16,12 @@ const importSchema = z.object({
     subtasks: z.array(z.object({ title: z.string().trim().min(1).max(500), completed: z.boolean(), position: z.number().int().min(0) })),
     tags: z.array(z.object({ name: z.string().trim().min(1).max(50), color: z.string().regex(/^#[0-9a-fA-F]{6}$/) })),
   })),
-}).strict();
+}).strict().superRefine((value, context) => {
+  value.todos.forEach((todo, index) => {
+    if (todo.is_recurring && (!todo.due_date || !todo.recurrence_pattern)) context.addIssue({ code: z.ZodIssueCode.custom, path: ['todos', index, 'recurrence_pattern'], message: 'Recurring todos require due date and pattern' });
+    if (todo.reminder_minutes !== null && !todo.due_date) context.addIssue({ code: z.ZodIssueCode.custom, path: ['todos', index, 'reminder_minutes'], message: 'Reminders require a due date' });
+  });
+});
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const session = await getSession();

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import { todoDB } from '@/lib/db';
+import { tagDB, todoDB } from '@/lib/db';
 import { calculateNextDueDate } from '@/lib/recurrence';
 import { todoConsistencySchema, todoUpdateSchema } from '@/lib/validation/todo';
 
@@ -48,15 +48,18 @@ export async function PUT(request: NextRequest, { params }: RouteContext): Promi
   const updated = todoDB.update(id, session.userId, changes);
   if (updated && changes.completed === true && !todo.completed && todo.is_recurring && todo.due_date && todo.recurrence_pattern) {
     const nextDueDate = calculateNextDueDate(todo.due_date, todo.recurrence_pattern);
-    if (nextDueDate) todoDB.create({
-      user_id: session.userId,
+    if (nextDueDate) {
+      const nextTodo = todoDB.create({
+        user_id: session.userId,
       title: todo.title,
       due_date: nextDueDate,
       priority: todo.priority,
       is_recurring: true,
       recurrence_pattern: todo.recurrence_pattern,
       reminder_minutes: todo.reminder_minutes,
-    });
+      });
+      for (const tag of todo.tags ?? []) tagDB.assign(nextTodo.id, tag.id, session.userId);
+    }
   }
   return updated ? NextResponse.json(updated) : NextResponse.json({ error: 'Todo not found' }, { status: 404 });
 }
